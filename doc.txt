@@ -1,0 +1,6 @@
+go mod init validate/grpc // cria o go mod
+uma pasta para gerar os arquivos protobuf(no caso do go uso a pasta "pb")
+uma pasta "proto" para gerar o arquivo proto, ou seja onde iremos fazer a definição do proto. "DocumentValidate.proto"
+
+protoc --go_out=. --go-grpc_out=. proto/*.proto //onde esta o arquivo proto e manda para pasta de gerados os arquivos.
+go get google.goland.org/grpc // para instalar as dependencias
