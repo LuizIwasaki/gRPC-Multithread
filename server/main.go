@@ -5,17 +5,22 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	pb "service/grpc/pb"
+
+	"google.golang.org/grpc"
 )
 
 type Server struct {
 	pb.UnimplementedServiceHelloServer
 }
 
-func (s *Server) ValidateCPF(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {
+func (s *Server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {
 	cpf := req.Name
 
 	isValid := isValidCPF(cpf)
@@ -79,16 +84,7 @@ func isValidCPF(cpf string) bool {
 }
 
 func main() {
-	listenAddr := ":0" // Porta em que o servidor gRPC será iniciado
-
-	// 	lis, err := net.Listen("tcp", listenAddr)
-	// if err != nil {
-	//     log.Fatalf("Failed to listen: %v", err)
-	// }
-
-	// // Obtém a porta atribuída pelo sistema
-	// port := lis.Addr().(*net.TCPAddr).Port
-	// fmt.Printf("Server listening on port %d\n", port)
+	listenAddr := ":49892" // Porta em que o servidor gRPC será iniciado
 
 	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
@@ -98,4 +94,23 @@ func main() {
 	// Obtém a porta atribuída pelo sistema
 	port := lis.Addr().(*net.TCPAddr).Port
 	fmt.Printf("Server listening on port %d\n", port)
+
+	// Crie o servidor gRPC
+	s := grpc.NewServer()
+	pb.RegisterServiceHelloServer(s, &Server{})
+
+	// Inicie o servidor gRPC em uma goroutine
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("Failed to serve: %v", err)
+		}
+	}()
+
+	// Aguarde um sinal para encerrar a aplicação
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+
+	fmt.Println("Shutting down the server...")
+	s.GracefulStop()
 }
