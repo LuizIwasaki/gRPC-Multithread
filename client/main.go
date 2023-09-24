@@ -38,16 +38,16 @@ func main() {
 	client := pb.NewServiceHelloClient(conn)
 
 	// Cria a requisição com o CPF
-	request := &pb.HelloRequest{
-		Name: cpf,
+	request := &pb.CPFRequest{
+		Cpf: cpf,
 	}
 
 	// Chama o método no servidor
-	response, err := client.SayHello(context.Background(), request)
+	response, err := client.ValidateCPF(context.Background(), request)
 	if err != nil {
 		log.Fatalf("Erro ao chamar ValidateCPF: %v", err)
 	}
 
 	// Exibe a resposta do servidor
-	fmt.Printf("Resposta do servidor: %s\n", response.Greeting)
+	fmt.Printf("Resposta do servidor: %s\n", response.Valid)
 }

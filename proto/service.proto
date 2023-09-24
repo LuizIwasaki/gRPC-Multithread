@@ -3,13 +3,22 @@ syntax = "proto3";
 option go_package = "./pb";
 
 service serviceHello {
-  rpc SayHello (HelloRequest) returns (HelloResponse) {};
+  rpc ValidateCPF (CPFRequest) returns (CPFResponse) {};
+  rpc ValidateCNPJ (CNPJRequest) returns (CNPJResponse) {};
 }
 
-message HelloRequest {
-  string name = 1;
+message CPFRequest {
+  string cpf = 1;
 }
 
-message HelloResponse {
-  string greeting = 1;
+message CPFResponse {
+  string valid = 1;
+}
+
+message CNPJRequest {
+  string cnpj = 1;
+}
+
+message CNPJResponse {
+  string valid = 1;
 }

@@ -14,17 +14,28 @@ class serviceHelloStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SayHello = channel.unary_unary(
-                '/serviceHello/SayHello',
-                request_serializer=service__pb2.HelloRequest.SerializeToString,
-                response_deserializer=service__pb2.HelloResponse.FromString,
+        self.ValidateCPF = channel.unary_unary(
+                '/serviceHello/ValidateCPF',
+                request_serializer=service__pb2.CPFRequest.SerializeToString,
+                response_deserializer=service__pb2.CPFResponse.FromString,
+                )
+        self.ValidateCNPJ = channel.unary_unary(
+                '/serviceHello/ValidateCNPJ',
+                request_serializer=service__pb2.CNPJRequest.SerializeToString,
+                response_deserializer=service__pb2.CNPJResponse.FromString,
                 )
 
 
 class serviceHelloServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SayHello(self, request, context):
+    def ValidateCPF(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ValidateCNPJ(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,10 +44,15 @@ class serviceHelloServicer(object):
 
 def add_serviceHelloServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SayHello': grpc.unary_unary_rpc_method_handler(
-                    servicer.SayHello,
-                    request_deserializer=service__pb2.HelloRequest.FromString,
-                    response_serializer=service__pb2.HelloResponse.SerializeToString,
+            'ValidateCPF': grpc.unary_unary_rpc_method_handler(
+                    servicer.ValidateCPF,
+                    request_deserializer=service__pb2.CPFRequest.FromString,
+                    response_serializer=service__pb2.CPFResponse.SerializeToString,
+            ),
+            'ValidateCNPJ': grpc.unary_unary_rpc_method_handler(
+                    servicer.ValidateCNPJ,
+                    request_deserializer=service__pb2.CNPJRequest.FromString,
+                    response_serializer=service__pb2.CNPJResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -49,7 +65,7 @@ class serviceHello(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SayHello(request,
+    def ValidateCPF(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +75,25 @@ class serviceHello(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/serviceHello/SayHello',
-            service__pb2.HelloRequest.SerializeToString,
-            service__pb2.HelloResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/serviceHello/ValidateCPF',
+            service__pb2.CPFRequest.SerializeToString,
+            service__pb2.CPFResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ValidateCNPJ(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/serviceHello/ValidateCNPJ',
+            service__pb2.CNPJRequest.SerializeToString,
+            service__pb2.CNPJResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

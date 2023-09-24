@@ -20,8 +20,8 @@ type Server struct {
 	pb.UnimplementedServiceHelloServer
 }
 
-func (s *Server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {
-	cpf := req.Name
+func (s *Server) ValidateCPF(ctx context.Context, req *pb.CPFRequest) (*pb.CPFResponse, error) {
+	cpf := req.Cpf
 
 	isValid := isValidCPF(cpf)
 
@@ -32,8 +32,25 @@ func (s *Server) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloR
 		status = "CPF inválido"
 	}
 
-	return &pb.HelloResponse{
-		Greeting: status,
+	return &pb.CPFResponse{
+		Valid: status,
+	}, nil
+}
+
+func (s *Server) ValidateCNPJ(ctx context.Context, req *pb.CNPJRequest) (*pb.CNPJResponse, error) {
+	cnpj := req.Cnpj
+
+	isValid := isValidCNPJ(cnpj)
+
+	var status string
+	if isValid {
+		status = "CNPJ válido"
+	} else {
+		status = "CNPJ inválido"
+	}
+
+	return &pb.CNPJResponse{
+		Valid: status,
 	}, nil
 }
 
@@ -81,6 +98,56 @@ func isValidCPF(cpf string) bool {
 	}
 
 	return digit2 == int(cpf[10]-'0')
+}
+
+func isValidCNPJ(cnpj string) bool {
+	cnpj = strings.ReplaceAll(cnpj, ".", "")
+	cnpj = strings.ReplaceAll(cnpj, "-", "")
+	cnpj = strings.ReplaceAll(cnpj, "/", "")
+
+	if len(cnpj) != 14 {
+		return false
+	}
+
+	// Fatores de multiplicação para o primeiro dígito
+	multipliers1 := []int{5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2}
+
+	// Fatores de multiplicação para o segundo dígito
+	multipliers2 := []int{6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2}
+
+	// Verifica o primeiro dígito verificador
+	sum := 0
+	for i := 0; i < 12; i++ {
+		digit, err := strconv.Atoi(string(cnpj[i]))
+		if err != nil {
+			return false
+		}
+		sum += digit * multipliers1[i]
+	}
+	remainder := sum % 11
+	digit1 := 11 - remainder
+	if digit1 >= 10 {
+		digit1 = 0
+	}
+	if digit1 != int(cnpj[12]-'0') {
+		return false
+	}
+
+	// Verifica o segundo dígito verificador
+	sum = 0
+	for i := 0; i < 13; i++ {
+		digit, err := strconv.Atoi(string(cnpj[i]))
+		if err != nil {
+			return false
+		}
+		sum += digit * multipliers2[i]
+	}
+	remainder = sum % 11
+	digit2 := 11 - remainder
+	if digit2 >= 10 {
+		digit2 = 0
+	}
+	return digit2 == int(cnpj[13]-'0')
 }
 
 func main() {

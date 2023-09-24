@@ -22,7 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceHelloClient interface {
-	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	ValidateCPF(ctx context.Context, in *CPFRequest, opts ...grpc.CallOption) (*CPFResponse, error)
+	ValidateCNPJ(ctx context.Context, in *CNPJRequest, opts ...grpc.CallOption) (*CNPJResponse, error)
 }
 
 type serviceHelloClient struct {
@@ -33,9 +34,18 @@ func NewServiceHelloClient(cc grpc.ClientConnInterface) ServiceHelloClient {
 	return &serviceHelloClient{cc}
 }
 
-func (c *serviceHelloClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
-	out := new(HelloResponse)
-	err := c.cc.Invoke(ctx, "/serviceHello/SayHello", in, out, opts...)
+func (c *serviceHelloClient) ValidateCPF(ctx context.Context, in *CPFRequest, opts ...grpc.CallOption) (*CPFResponse, error) {
+	out := new(CPFResponse)
+	err := c.cc.Invoke(ctx, "/serviceHello/ValidateCPF", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHelloClient) ValidateCNPJ(ctx context.Context, in *CNPJRequest, opts ...grpc.CallOption) (*CNPJResponse, error) {
+	out := new(CNPJResponse)
+	err := c.cc.Invoke(ctx, "/serviceHello/ValidateCNPJ", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +56,8 @@ func (c *serviceHelloClient) SayHello(ctx context.Context, in *HelloRequest, opt
 // All implementations must embed UnimplementedServiceHelloServer
 // for forward compatibility
 type ServiceHelloServer interface {
-	SayHello(context.Context, *HelloRequest) (*HelloResponse, error)
+	ValidateCPF(context.Context, *CPFRequest) (*CPFResponse, error)
+	ValidateCNPJ(context.Context, *CNPJRequest) (*CNPJResponse, error)
 	mustEmbedUnimplementedServiceHelloServer()
 }
 
@@ -54,8 +65,11 @@ type ServiceHelloServer interface {
 type UnimplementedServiceHelloServer struct {
 }
 
-func (UnimplementedServiceHelloServer) SayHello(context.Context, *HelloRequest) (*HelloResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
+func (UnimplementedServiceHelloServer) ValidateCPF(context.Context, *CPFRequest) (*CPFResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateCPF not implemented")
+}
+func (UnimplementedServiceHelloServer) ValidateCNPJ(context.Context, *CNPJRequest) (*CNPJResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateCNPJ not implemented")
 }
 func (UnimplementedServiceHelloServer) mustEmbedUnimplementedServiceHelloServer() {}
 
@@ -70,20 +84,38 @@ func RegisterServiceHelloServer(s grpc.ServiceRegistrar, srv ServiceHelloServer)
 	s.RegisterService(&ServiceHello_ServiceDesc, srv)
 }
 
-func _ServiceHello_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloRequest)
+func _ServiceHello_ValidateCPF_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CPFRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceHelloServer).SayHello(ctx, in)
+		return srv.(ServiceHelloServer).ValidateCPF(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/serviceHello/SayHello",
+		FullMethod: "/serviceHello/ValidateCPF",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHelloServer).SayHello(ctx, req.(*HelloRequest))
+		return srv.(ServiceHelloServer).ValidateCPF(ctx, req.(*CPFRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHello_ValidateCNPJ_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CNPJRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHelloServer).ValidateCNPJ(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/serviceHello/ValidateCNPJ",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHelloServer).ValidateCNPJ(ctx, req.(*CNPJRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +128,12 @@ var ServiceHello_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceHelloServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SayHello",
-			Handler:    _ServiceHello_SayHello_Handler,
+			MethodName: "ValidateCPF",
+			Handler:    _ServiceHello_ValidateCPF_Handler,
+		},
+		{
+			MethodName: "ValidateCNPJ",
+			Handler:    _ServiceHello_ValidateCNPJ_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
